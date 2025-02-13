@@ -13,6 +13,11 @@ export default function VMUpload() {
   const [file, setFile] = useState<File | null>(null);
   const [vmName, setVmName] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("eastus"); // Default Azure region
+  const [vmSize, setVmSize] = useState("Standard_B1s"); // Default VM size
+  const [imageReference, setImageReference] = useState("Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest");
+  const [adminUsername, setAdminUsername] = useState("adminuser");
+  const [adminPassword, setAdminPassword] = useState("");
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const { toast } = useToast();
@@ -35,6 +40,11 @@ export default function VMUpload() {
     formData.append("vmFile", file);
     formData.append("vmName", vmName);
     formData.append("description", description);
+    formData.append("location", location);
+    formData.append("vmSize", vmSize);
+    formData.append("imageReference", imageReference);
+    formData.append("adminUsername", adminUsername);
+    formData.append("adminPassword", adminPassword);
 
     setIsUploading(true);
     setUploadProgress(0);
@@ -63,6 +73,11 @@ export default function VMUpload() {
         setFile(null);
         setVmName("");
         setDescription("");
+        setLocation("eastus");
+        setVmSize("Standard_B1s");
+        setImageReference("Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest");
+        setAdminUsername("adminuser");
+        setAdminPassword("");
         setUploadProgress(100);
       } else {
         throw new Error(data.message || "Upload error");
@@ -84,7 +99,7 @@ export default function VMUpload() {
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-purple-400">Upload VM File</CardTitle>
           <CardDescription className="text-gray-400">
-            Upload your Virtual Machine file and provide additional details
+            Upload your Virtual Machine file and provide additional details for Azure deployment.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -96,6 +111,11 @@ export default function VMUpload() {
           )}
           <Input placeholder="VM Name" value={vmName} onChange={(e) => setVmName(e.target.value)} />
           <Input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <Input placeholder="Azure Location (e.g., eastus)" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <Input placeholder="VM Size (e.g., Standard_B1s)" value={vmSize} onChange={(e) => setVmSize(e.target.value)} />
+          <Input placeholder="Image Reference" value={imageReference} onChange={(e) => setImageReference(e.target.value)} />
+          <Input placeholder="Admin Username" value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} />
+          <Input type="password" placeholder="Admin Password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} />
           {isUploading && <Progress value={uploadProgress} className="w-full" />}
         </CardContent>
         <CardFooter>

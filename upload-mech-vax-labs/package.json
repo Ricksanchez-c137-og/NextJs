@@ -9,6 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/arm-compute": "^22.3.0",
+    "@azure/arm-network": "^33.5.0",
+    "@azure/arm-resources": "^5.2.0",
+    "@azure/identity": "^4.6.0",
     "@azure/storage-blob": "^12.26.0",
     "@radix-ui/react-progress": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
