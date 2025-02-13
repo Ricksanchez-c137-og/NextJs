@@ -44,7 +44,7 @@ export default function VMUpload() {
         method: "POST",
         body: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure user is authenticated
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // If needed
         },
       });
 
@@ -60,11 +60,10 @@ export default function VMUpload() {
           description: "VM file uploaded successfully!",
         });
 
-        // Reset form
         setFile(null);
         setVmName("");
         setDescription("");
-        setUploadProgress(100); // Mark completion
+        setUploadProgress(100);
       } else {
         throw new Error(data.message || "Upload error");
       }
@@ -95,26 +94,12 @@ export default function VMUpload() {
               Selected File: <span className="font-bold">{file.name}</span>
             </p>
           )}
-          <Input
-            placeholder="VM Name"
-            value={vmName}
-            onChange={(e) => setVmName(e.target.value)}
-            className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-          />
-          <Input
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-          />
+          <Input placeholder="VM Name" value={vmName} onChange={(e) => setVmName(e.target.value)} />
+          <Input placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
           {isUploading && <Progress value={uploadProgress} className="w-full" />}
         </CardContent>
         <CardFooter>
-          <Button
-            onClick={handleUpload}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-            disabled={isUploading}
-          >
+          <Button onClick={handleUpload} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
             {isUploading ? "Uploading..." : "Upload VM File"}
           </Button>
         </CardFooter>
