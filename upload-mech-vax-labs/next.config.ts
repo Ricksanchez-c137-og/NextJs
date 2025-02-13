@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack: (config: { experiments: { asyncWebAssembly: boolean; layers: boolean; }; }, { isServer }: any) => {
+    config.experiments = { asyncWebAssembly: true, layers: true };
+    return config;
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

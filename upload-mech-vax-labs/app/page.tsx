@@ -1,24 +1,25 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
-import { Toaster } from "@/components/ui/toaster"
-import DropZone from "@/components/drop-zone"
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import DropZone from "@/components/drop-zone";
 
 export default function VMUpload() {
-  const [file, setFile] = useState<File | null>(null)
-  const [vmName, setVmName] = useState("")
-  const [description, setDescription] = useState("")
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const { toast } = useToast()
+  const [file, setFile] = useState<File | null>(null);
+  const [vmName, setVmName] = useState("");
+  const [description, setDescription] = useState("");
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const { toast } = useToast();
 
   const handleFileChange = (selectedFile: File) => {
-    setFile(selectedFile)
-  }
+    setFile(selectedFile);
+  };
 
   const handleUpload = async () => {
     if (!file) {
@@ -26,27 +27,57 @@ export default function VMUpload() {
         title: "Error",
         description: "Please select a file to upload.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    // Simulating file upload
-    for (let i = 0; i <= 100; i += 10) {
-      setUploadProgress(i)
-      await new Promise((resolve) => setTimeout(resolve, 500))
+    const formData = new FormData();
+    formData.append("vmFile", file);
+    formData.append("vmName", vmName);
+    formData.append("description", description);
+
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      const response = await fetch("/api/vm/upload", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure user is authenticated
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed.");
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: "VM file uploaded successfully!",
+        });
+
+        // Reset form
+        setFile(null);
+        setVmName("");
+        setDescription("");
+        setUploadProgress(100); // Mark completion
+      } else {
+        throw new Error(data.message || "Upload error");
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: (error as Error).message || "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
-
-    toast({
-      title: "Success",
-      description: "VM file uploaded successfully!",
-    })
-
-    // Reset form
-    setFile(null)
-    setVmName("")
-    setDescription("")
-    setUploadProgress(0)
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -59,6 +90,11 @@ export default function VMUpload() {
         </CardHeader>
         <CardContent className="space-y-6">
           <DropZone onFileSelect={handleFileChange} />
+          {file && (
+            <p className="text-sm text-green-400">
+              Selected File: <span className="font-bold">{file.name}</span>
+            </p>
+          )}
           <Input
             placeholder="VM Name"
             value={vmName}
@@ -71,15 +107,19 @@ export default function VMUpload() {
             onChange={(e) => setDescription(e.target.value)}
             className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
           />
-          {uploadProgress > 0 && <Progress value={uploadProgress} className="w-full" />}
+          {isUploading && <Progress value={uploadProgress} className="w-full" />}
         </CardContent>
         <CardFooter>
-          <Button onClick={handleUpload} className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-            Upload VM File
+          <Button
+            onClick={handleUpload}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            disabled={isUploading}
+          >
+            {isUploading ? "Uploading..." : "Upload VM File"}
           </Button>
         </CardFooter>
       </Card>
       <Toaster />
     </div>
-  )
+  );
 }

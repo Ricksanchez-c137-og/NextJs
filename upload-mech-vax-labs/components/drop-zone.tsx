@@ -2,9 +2,14 @@ import type React from "react"
 import { useCallback } from "react"
 import { useDropzone } from "react-dropzone"
 import { Upload } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
 
 interface DropZoneProps {
   onFileSelect: (file: File) => void
+}
+
+function setDescription(arg0: string) {
+  throw new Error("Function not implemented.");
 }
 
 const DropZone: React.FC<DropZoneProps> = ({ onFileSelect }) => {
@@ -34,6 +39,53 @@ const DropZone: React.FC<DropZoneProps> = ({ onFileSelect }) => {
     </div>
   )
 }
+const handleUpload = async (file: File, name: string, description: string) => {
+  if (!file) {
+    toast({
+      title: "Error",
+      description: "Please select a file to upload.",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("vmFile", file);
+  formData.append("vmName", name);
+  formData.append("description", description);
+
+  try {
+    const res = await fetch("/api/vm/upload", {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure user is authenticated
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setDescription("");
+      toast({ title: "Success", description: "VM uploaded successfully!" });
+      setFile(null);
+      setVmName("");
+      setDescription("");
+    } else {
+      toast({ title: "Error", description: data.message, variant: "destructive" });
+    }
+  } catch (error) {
+    toast({ title: "Error", description: "Upload failed!", variant: "destructive" });
+  }
+};
 
 export default DropZone
+
+function setFile(arg0: null) {
+  throw new Error("Function not implemented.")
+}
+
+function setVmName(arg0: string) {
+  throw new Error("Function not implemented.")
+}
 
