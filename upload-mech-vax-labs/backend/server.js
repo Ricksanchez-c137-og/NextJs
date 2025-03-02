@@ -146,7 +146,6 @@ app.post("/api/vpn/generate", authenticateJWT, async (req, res) => {
     const { userId } = req.user;
     if (!userId) return res.status(400).json({ success: false, message: "Missing User ID" });
 
-    // Generate a unique `.ovpn` file (Example, replace with actual VPN config)
     const vpnConfig = `
     client
     dev tun
